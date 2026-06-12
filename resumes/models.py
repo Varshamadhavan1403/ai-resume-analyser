@@ -10,5 +10,8 @@ class Resume(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     extracted_skills = models.JSONField(default=list, blank=True)
     score = models.IntegerField(default=0)
+    experience_years = models.IntegerField(default=0)
+    companies = models.JSONField(default=list, blank=True)
+    education = models.JSONField(default=list, blank=True)
     def __str__(self):
         return self.file.name
