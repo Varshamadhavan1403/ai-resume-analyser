@@ -4,6 +4,8 @@ from .models import Resume
 from .serializers import ResumeSerializer, ResumeProfileSerializer
 from . services import ResumeParser
 from .skill_extractor import SkillExtractor
+from .summary_generator import SummaryGenerator
+from .job_matcher import JobMatcher
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -79,3 +81,22 @@ class ResumeProfileView(APIView):
         serializer = ResumeProfileSerializer(resume)
         return Response(serializer.data)
     
+
+class ResumeSummaryView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        resume = get_object_or_404(Resume, user=request.user, pk=pk)
+        summary = SummaryGenerator.generate_summary(resume)
+        return Response({"summary": summary, "resume_id": resume.id})
+
+
+class JobMatchView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+      resume_id = request.data.get('resume_id')
+      required_skills = request.data.get('required_skills', [])
+      resume = Resume.objects.get(id=resume_id, user=request.user)
+      result= JobMatcher.match(resume.extracted_skills, required_skills)
+      return Response(result)
