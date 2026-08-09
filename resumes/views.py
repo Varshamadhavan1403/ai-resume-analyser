@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.db.models import Avg
+from collections import Counter
 from rest_framework import generics, permissions
 from .models import Resume
 from .serializers import ResumeSerializer, ResumeProfileSerializer
@@ -100,3 +102,23 @@ class JobMatchView(APIView):
       resume = Resume.objects.get(id=resume_id, user=request.user)
       result= JobMatcher.match(resume.extracted_skills, required_skills)
       return Response(result)
+
+
+class DashboardView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        resumes = Resume.objects.filter(user=request.user)
+        total_resumes = resumes.count()
+        average_score = round(resumes.aggregate(Avg('score'))['score__avg'] or 0, 2)
+        all_skills = []
+        for resume in resumes:
+            all_skills.extend(resume.extracted_skills)
+        skill_counts = Counter(all_skills)
+        top_skills = [skill for skill, count in skill_counts.most_common(5)]
+        # top_skills = skill_counts.most_common(5)
+        return Response({
+            "total_resumes": total_resumes,
+            "average_score": average_score,
+            "top_skills": top_skills,
+        })

@@ -1,6 +1,7 @@
 from .views import (
     ResumeUploadView, ResumeDetailView, ResumeListView, ResumeSkillsView, 
-    ResumeAnalysisView, ResumeProfileView, ResumeSummaryView, JobMatchView
+    ResumeAnalysisView, ResumeProfileView, ResumeSummaryView, JobMatchView,
+    DashboardView
 )
 from django.urls import path
 
@@ -13,4 +14,5 @@ urlpatterns = [
     path('<int:pk>/profile/', ResumeProfileView.as_view(), name='resume-profile'),
     path('<int:pk>/summary/', ResumeSummaryView.as_view(), name='resume-summary'),
     path('jobs/match/', JobMatchView.as_view(), name='job-match'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
 ]
